@@ -9,12 +9,22 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from threading import Thread
+from kivy.uix.anchorlayout import AnchorLayout
 
 class FilePicker(BoxLayout):
 
     def __init__(self, **kwargs):
         super(FilePicker, self).__init__(**kwargs)
         self.orientation = 'vertical'
+
+        # Create an AnchorLayout to position the instructions button
+        anchor_layout = AnchorLayout(size_hint=(1, 0.1), anchor_x='right', anchor_y='top')
+        
+        self.instructions_button = Button(text='?', size_hint=(None, None), size=(40, 40))
+        self.instructions_button.bind(on_release=self.show_instructions)
+        anchor_layout.add_widget(self.instructions_button)
+
+        self.add_widget(anchor_layout)
 
         self.label = Label(text='Select an MP4 file:', size_hint=(1, 0.1))
         self.add_widget(self.label)
@@ -30,6 +40,7 @@ class FilePicker(BoxLayout):
         self.play_button.bind(on_release=self.play_video)
         self.play_button.disabled = True
         self.add_widget(self.play_button)
+
 
     def show_file_picker(self, instance):
         content = BoxLayout(orientation='vertical')
@@ -118,6 +129,27 @@ class FilePicker(BoxLayout):
         cap.release()
         cv2.destroyAllWindows()
         print("Finished showing video")
+
+    def show_instructions(self, instance):
+        instructions = (
+            "Usage Instructions:\n\n"
+            "1. Click 'Browse' to select an MP4 file.\n"
+            "2. Once a file is selected, click 'Play Video' to play the video.\n"
+            "3. Use the following controls while the video is playing:\n"
+            "   - 'f': Tap or hold down to move through video frame by frame.\n"
+            "   - 'r': Resume video playback.\n"
+            "   - 'b': Skip back 30 frames.\n"
+            "   - 'q': Quit the video playback."
+        )
+        content = BoxLayout(orientation='vertical')
+        label = Label(text=instructions, size_hint=(1, 0.9))
+        close_button = Button(text='Close', size_hint=(1, 0.1))
+        content.add_widget(label)
+        content.add_widget(close_button)
+
+        popup = Popup(title='Instructions', content=content, size_hint=(0.9, 0.9))
+        close_button.bind(on_release=popup.dismiss)
+        popup.open()
 
 class FilePickerApp(App):
     def build(self):
