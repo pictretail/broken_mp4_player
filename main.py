@@ -41,7 +41,6 @@ class FilePicker(BoxLayout):
         self.play_button.disabled = True
         self.add_widget(self.play_button)
 
-
     def show_file_picker(self, instance):
         content = BoxLayout(orientation='vertical')
         user_home = os.path.expanduser('~')
@@ -111,6 +110,11 @@ class FilePicker(BoxLayout):
 
             cv2.imshow(videoName, frame)
             key = cv2.waitKey(runmode) & 0xFF
+
+            # Check if window has been closed
+            if cv2.getWindowProperty(videoName, cv2.WND_PROP_VISIBLE) < 1:
+                break
+
             if key == ord('f'):
                 runmode = 0
             elif key == ord('r'):
@@ -136,7 +140,7 @@ class FilePicker(BoxLayout):
             "1. Click 'Browse' to select an MP4 file.\n"
             "2. Once a file is selected, click 'Play Video' to play the video.\n"
             "3. Use the following controls while the video is playing:\n"
-            "   - 'f': Tap or hold down to move through video frame by frame.\n"
+            "   - 'f': Play video normally.\n"
             "   - 'r': Resume video playback.\n"
             "   - 'b': Skip back 30 frames.\n"
             "   - 'q': Quit the video playback."
@@ -153,8 +157,8 @@ class FilePicker(BoxLayout):
 
 class FilePickerApp(App):
     def build(self):
+        self.icon = 'icon.ico'
         return FilePicker()
 
 if __name__ == '__main__':
     FilePickerApp().run()
-
