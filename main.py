@@ -1,14 +1,8 @@
 import os
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from dotenv import load_dotenv
 from screens.login_screen import LoginScreen
 from screens.file_picker_screen import FilePickerScreen
-
-load_dotenv('.env.development')  # take environment variables from .env.
-api_url = os.getenv('API_URL')
-print(api_url)
-
 
 # Create the main application class
 class FilePickerApp(App):
