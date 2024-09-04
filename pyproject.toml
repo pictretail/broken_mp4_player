@@ -1,3 +1,3 @@
 [[tool.mypy.overrides]]
-module = ['kivy.*']
+module = ['kivy.*', 'kivymd.*', 'app_state.*']
 ignore_missing_imports = true
