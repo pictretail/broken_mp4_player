@@ -122,9 +122,7 @@ class LoginScreen(Screen):
 
         try:
             # Send the request
-            response = requests.post(
-                "http://localhost:8000/graphql_internal", json=json_data
-            )
+            response = requests.post(API_URL, json=json_data)
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
 
             data = response.json()
