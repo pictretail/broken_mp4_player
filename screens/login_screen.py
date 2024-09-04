@@ -11,6 +11,7 @@ from kivy.core.window import Window
 from kivy.graphics import Rectangle, Color
 from dotenv import load_dotenv
 import os
+from app_state import state
 
 load_dotenv(".env.development")  # Load environment variables from .env.
 API_URL = os.getenv("API_URL")
@@ -129,8 +130,8 @@ class LoginScreen(MDScreen):
 
             # Check if the response contains the expected data
             if "data" in data and data["data"].get("loginUser"):
-                token = data["data"]["loginUser"].get("token")
-                if token:
+                state.token = data["data"]["loginUser"].get("token")
+                if state.token:
                     # Handle successful login
                     self.manager.current = "reach_segment_table"
                 else:

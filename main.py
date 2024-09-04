@@ -11,7 +11,7 @@ class FilePickerApp(MDApp):
 
         # Add screens to the screen manager
         sm.add_widget(LoginScreen(name='login'))
-        sm.add_widget(FilePickerScreen(name='filepicker'))
+        # sm.add_widget(FilePickerScreen(name='filepicker'))
         sm.add_widget(ReachSegmentTable(name='reach_segment_table'))
 
         return sm
