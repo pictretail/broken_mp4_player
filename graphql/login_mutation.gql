@@ -1,0 +1,74 @@
+mutation loginUser($username: String!, $password: String!) {
+  loginUser(username: $username, password: $password) {
+    user {
+      ...UserContext
+      __typename
+    }
+    token
+    __typename
+  }
+}
+
+fragment UserContext on UserGraphql {
+  id
+  username
+  firstName
+  lastName
+  email
+  isActive
+  isStaff
+  isSuperuser
+  useraccount {
+    ...UserAccountContext
+    __typename
+  }
+  __typename
+}
+
+fragment UserAccountContext on UserAccountGraphql {
+  id
+  lastUsedMetro {
+    ...MetroAll
+    __typename
+  }
+  metro {
+    ...MetroAll
+    __typename
+  }
+  permissionGroup {
+    id
+    name
+    __typename
+  }
+  isSsoUser
+  allPermissionSlugs
+  allMetros {
+    ...MetroAll
+    __typename
+  }
+  operatingCompanies {
+    ...OperatingCompanyAll
+    __typename
+  }
+  __typename
+}
+
+fragment MetroAll on MetroGraphql {
+  __typename
+  id
+  name
+  timezone
+  taxRate
+  operatingCompany {
+    id
+    name
+    __typename
+  }
+}
+
+fragment OperatingCompanyAll on OperatingCompanyGraphql {
+  __typename
+  id
+  name
+  bornOn
+}
