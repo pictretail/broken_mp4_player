@@ -1,54 +1,59 @@
 import os
 import cv2
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.filechooser import FileChooserListView
-from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import Screen
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.screen import MDScreen
 from threading import Thread
-# Define the FilePicker screen class
-class FilePickerScreen(Screen, BoxLayout):
+
+
+class FilePickerScreen(MDScreen):
 
     def __init__(self, **kwargs):
         super(FilePickerScreen, self).__init__(**kwargs)
         self.orientation = 'vertical'
 
-        self.label = Label(text='Select an MP4 file:', size_hint=(1, 0.1))
+        # Label for instructions
+        self.label = MDLabel(text='Select an MP4 file:', size_hint=(1, 0.1), halign='center')
         self.add_widget(self.label)
 
-        self.file_path_label = Label(text='', size_hint=(1, 0.1))
+        # Label to display selected file path
+        self.file_path_label = MDLabel(text='', size_hint=(1, 0.1), halign='center')
         self.add_widget(self.file_path_label)
 
-        self.browse_button = Button(text='Browse', size_hint=(1, 0.1))
+        # Browse button to open file picker
+        self.browse_button = MDRaisedButton(text='Browse', size_hint=(1, 0.1))
         self.browse_button.bind(on_release=self.show_file_picker)
         self.add_widget(self.browse_button)
 
-        self.play_button = Button(text='Play Video', size_hint=(1, 0.1))
+        # Play button to start the video
+        self.play_button = MDRaisedButton(text='Play Video', size_hint=(1, 0.1))
         self.play_button.bind(on_release=self.play_video)
         self.play_button.disabled = True
         self.add_widget(self.play_button)
 
+        # Initialize file manager
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_file_manager,
+            select_path=self.select_path,
+        )
+
     def show_file_picker(self, instance):
-        content = BoxLayout(orientation='vertical')
+        # Open the file manager
         user_home = os.path.expanduser('~')
-        filechooser = FileChooserListView(filters=['*.mp4'], path=user_home)
-        content.add_widget(filechooser)
+        self.file_manager.show(user_home)  # Provide the path to open the file manager
 
-        select_button = Button(text='Select', size_hint=(1, 0.1))
-        content.add_widget(select_button)
+    def select_path(self, path):
+        # Handle the file selection
+        self.file_path_label.text = path
+        self.play_button.disabled = False
+        self.exit_file_manager()
 
-        popup = Popup(title='File Picker', content=content, size_hint=(0.9, 0.9))
-
-        def on_select(instance):
-            selected = filechooser.selection
-            if selected:
-                self.file_path_label.text = selected[0]
-                self.play_button.disabled = False
-                popup.dismiss()
-
-        select_button.bind(on_release=on_select)
-        popup.open()
+    def exit_file_manager(self, *args):
+        # Close the file manager
+        self.file_manager.close()
 
     def play_video(self, instance):
         video_path = self.file_path_label.text

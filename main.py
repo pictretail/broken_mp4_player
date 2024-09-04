@@ -1,12 +1,10 @@
-import os
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 from screens.login_screen import LoginScreen
 from screens.file_picker_screen import FilePickerScreen
 from screens.reach_segment_table import ReachSegmentTable
 
-# Create the main application class
-class FilePickerApp(App):
+class FilePickerApp(MDApp):
 
     def build(self):
         sm = ScreenManager()

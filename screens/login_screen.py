@@ -1,11 +1,11 @@
 import requests
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.textinput import TextInput
-from kivy.uix.popup import Popup
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.screen import MDScreen
 from kivy.uix.image import Image
-from kivy.uix.screenmanager import Screen
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.core.window import Window
 from kivy.graphics import Rectangle, Color
@@ -17,7 +17,7 @@ API_URL = os.getenv("API_URL")
 
 
 # Define the LoginScreen class
-class LoginScreen(Screen):
+class LoginScreen(MDScreen):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
 
@@ -29,7 +29,7 @@ class LoginScreen(Screen):
 
         # Use AnchorLayout to center the content
         anchor_layout = AnchorLayout(anchor_x="center", anchor_y="center")
-        layout = BoxLayout(
+        layout = MDBoxLayout(
             orientation="vertical",
             padding=10,
             spacing=10,
@@ -51,10 +51,10 @@ class LoginScreen(Screen):
         layout.add_widget(logo)
 
         # Username input
-        self.username = TextInput(
+        self.username = MDTextField(
             on_text_validate=self.on_username_validate,
             hint_text="Username",
-            multiline=False,
+            mode="rectangle",
             size_hint_y=None,
             height=input_height,
         )
@@ -62,11 +62,11 @@ class LoginScreen(Screen):
         layout.add_widget(self.username)
 
         # Password input
-        self.password = TextInput(
+        self.password = MDTextField(
             on_text_validate=self.on_password_enter,
             hint_text="Password",
-            multiline=False,
             password=True,
+            mode="rectangle",
             size_hint_y=None,
             height=input_height,
         )
@@ -74,7 +74,7 @@ class LoginScreen(Screen):
         layout.add_widget(self.password)
 
         # Login button
-        login_button = Button(text="Login", size_hint_y=None, height=button_height)
+        login_button = MDRaisedButton(text="Login", size_hint_y=None, height=button_height)
         login_button.bind(on_release=self.validate_credentials)
         layout.add_widget(login_button)
 
@@ -143,19 +143,16 @@ class LoginScreen(Screen):
             self.show_error(f"An error occurred: {err}")
 
     def show_error(self, message):
-        content = BoxLayout(orientation="vertical")
+        # Use MDDialog to show error messages
+        dialog = MDDialog(
+            title="Login Error",
+            text=message,
+            buttons=[
+                MDRaisedButton(
+                    text="Close",
+                    on_release=lambda x: dialog.dismiss()
+                )
+            ]
+        )
+        dialog.open()
 
-        # Add the message label
-        message_label = Label(text=message)
-        content.add_widget(message_label)
-
-        # Add a close button
-        close_button = Button(text="Close", size_hint=(1, 0.25))
-        content.add_widget(close_button)
-
-        popup = Popup(title="Login Error", content=content, size_hint=(0.6, 0.4))
-
-        # Bind the close button to dismiss the popup
-        close_button.bind(on_release=popup.dismiss)
-
-        popup.open()
