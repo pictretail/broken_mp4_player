@@ -1,17 +1,18 @@
-import requests
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDRaisedButton
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.screen import MDScreen
-from kivy.uix.image import Image
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.core.window import Window
-from kivy.graphics import Rectangle, Color
-from dotenv import load_dotenv
 import os
+
+import requests
 from app_state import state
+from dotenv import load_dotenv
+from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.image import Image
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.label import MDLabel
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.textfield import MDTextField
 
 load_dotenv(".env.development")  # Load environment variables from .env.
 API_URL = os.getenv("API_URL")
