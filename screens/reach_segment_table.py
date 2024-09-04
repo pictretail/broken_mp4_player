@@ -1,10 +1,14 @@
 import requests
+from pprint import pprint
 from kivy.metrics import dp
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.screen import MDScreen
 from kivymd.toast import toast
 from kivy.clock import mainthread
+from kivy.uix.boxlayout import BoxLayout  # Import BoxLayout for positioning
 from dotenv import load_dotenv
+from datetime import datetime
+from dateutil import parser
 import os
 from app_state import state
 
@@ -19,10 +23,10 @@ class ReachSegmentTable(MDScreen):
         # Initialize the data table (empty for now)
         self.data_tables = MDDataTable(
             use_pagination=True,
-            check=True,
+            check=False,
             column_data=[
                 ("Reach Segment ID", dp(30)),
-                ("Date", dp(30)),
+                ("Date", dp(40)),
                 ("Status", dp(30)),
                 ("Item Labels", dp(30)),
                 ("Hand Labels", dp(30)),
@@ -36,15 +40,23 @@ class ReachSegmentTable(MDScreen):
             sorted_on="Date",
             sorted_order="ASC",
             elevation=2,
+            rows_num=10,  # Reducing rows_num for better size control
+            size_hint=(None, None),  # Disable size hinting to set fixed size
+            size=(dp(800), dp(400)),  # Set explicit size for the table
         )
 
-        # Fetch data from GraphQL and populate the table
+        # Create a BoxLayout to center the table
+        self.box_layout = BoxLayout(orientation='vertical', padding=10)
+        self.box_layout.add_widget(self.data_tables)
+        self.box_layout.size_hint = (None, None)  # Disable BoxLayout's size hint
+        self.box_layout.size = (dp(850), dp(450))  # Set BoxLayout size slightly larger than the table for padding
 
-        # Add the data table to the screen
+        # Center the table within the layout
+        self.box_layout.pos_hint = {'center_x': 0.5, 'top': 1}
 
     def on_parent(self, widget, parent):
         self.fetch_reach_segment_data()
-        self.add_widget(self.data_tables)
+        self.add_widget(self.box_layout)  # Add the BoxLayout (which contains the table)
 
     def fetch_reach_segment_data(self):
         """Fetches reach segment data from the GraphQL API and populates the table."""
@@ -91,8 +103,8 @@ class ReachSegmentTable(MDScreen):
         for segment in reach_segments:
             row = (
                 str(segment["id"]),  # Reach Segment ID
-                segment["date"],  # Date
-                segment["labelStatus"]["status"],  # Status
+                parser.parse(segment["date"]).strftime("%b %d %Y %-I:%M %p"),  # Date
+                str(segment["labelStatus"]["status"]),  # Status
                 str(len(segment["labels"])),  # Item Labels (count)
                 str(
                     sum(1 for label in segment["labels"] if label["type"] == "HAND")
@@ -100,11 +112,16 @@ class ReachSegmentTable(MDScreen):
                 str(
                     sum(len(label["polygons"]) for label in segment["labels"])
                 ),  # Polygons (count)
-                segment["labelStatus"]["labeledBy"]["username"],  # Labeled By
-                segment["labelStatus"]["bornOn"],  # Started On
-                segment["labelStatus"]["completeOn"],  # Completed On
+                (
+                    segment["labelStatus"]["labeledBy"]["username"]
+                    if segment["labelStatus"]["labeledBy"]
+                    else "N/A"
+                ),  # Labeled By
+                segment["labelStatus"]["bornOn"] or "N/A",  # Started On
+                segment["labelStatus"]["completeOn"] or "N/A",  # Completed On
                 "Yes" if segment["labelStatus"]["wasGenerated"] else "No",  # Generated
             )
+
             row_data.append(row)
         return row_data
 
@@ -120,3 +137,4 @@ class ReachSegmentTable(MDScreen):
     def on_check_press(self, instance_table, current_row):
         """Called when the check box in the table row is checked."""
         print(instance_table, current_row)
+
