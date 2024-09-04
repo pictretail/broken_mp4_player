@@ -12,7 +12,7 @@ from kivy.graphics import Rectangle, Color
 from dotenv import load_dotenv
 import os
 
-load_dotenv(".env.development")  # take environment variables from .env.
+load_dotenv(".env.development")  # Load environment variables from .env.
 API_URL = os.getenv("API_URL")
 
 
@@ -20,12 +20,13 @@ API_URL = os.getenv("API_URL")
 class LoginScreen(Screen):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
+
         # Set the background color
         with self.canvas.before:
             Color(0.945, 0.953, 0.957, 1)  # This is the RGB equivalent of #F1F3F4
             self.rect = Rectangle(size=self.size, pos=self.pos)
-
         self.bind(size=self._update_rect, pos=self._update_rect)
+
         # Use AnchorLayout to center the content
         anchor_layout = AnchorLayout(anchor_x="center", anchor_y="center")
         layout = BoxLayout(
@@ -51,14 +52,18 @@ class LoginScreen(Screen):
 
         # Username input
         self.username = TextInput(
-            hint_text="Username", multiline=False, size_hint_y=None, height=input_height
+            on_text_validate=self.on_username_validate,
+            hint_text="Username",
+            multiline=False,
+            size_hint_y=None,
+            height=input_height,
         )
         self.username.bind(on_focus=self.on_focus)
-        self.username.bind(on_enter=self.on_enter, on_leave=self.on_leave)
         layout.add_widget(self.username)
 
         # Password input
         self.password = TextInput(
+            on_text_validate=self.on_password_enter,
             hint_text="Password",
             multiline=False,
             password=True,
@@ -66,7 +71,6 @@ class LoginScreen(Screen):
             height=input_height,
         )
         self.password.bind(on_focus=self.on_focus)
-        self.password.bind(on_enter=self.on_enter, on_leave=self.on_leave)
         layout.add_widget(self.password)
 
         # Login button
@@ -76,6 +80,18 @@ class LoginScreen(Screen):
 
         anchor_layout.add_widget(layout)
         self.add_widget(anchor_layout)
+
+    def on_username_validate(self, instance):
+        # Move focus to password input when Enter is pressed in username field
+        self.password.focus = True
+
+    def on_password_enter(self, instance):
+        # Trigger login when Enter is pressed in password field
+        self.validate_credentials(instance)
+
+    def on_parent(self, widget, parent):
+        # Set focus to username input when the screen is added to the parent
+        self.username.focus = True
 
     def on_focus(self, instance, value):
         """Change the cursor when the TextInput is focused or unfocused."""
@@ -93,36 +109,32 @@ class LoginScreen(Screen):
         password = self.password.text
 
         # Load the GraphQL mutation from the file
-        with open('graphql/login_mutation.gql', 'r') as file:
+        with open("graphql/login_mutation.gql", "r") as file:
             query = file.read()
 
-        variables = {
-            "username": username,
-            "password": password
-        }
+        variables = {"username": username, "password": password}
 
         json_data = {
             "operationName": "loginUser",
             "query": query,
-            "variables": variables
+            "variables": variables,
         }
 
         try:
             # Send the request
             response = requests.post(
-                'http://localhost:8000/graphql_internal',
-                json=json_data
+                "http://localhost:8000/graphql_internal", json=json_data
             )
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
 
             data = response.json()
 
             # Check if the response contains the expected data
-            if 'data' in data and data['data'].get('loginUser'):
-                token = data['data']['loginUser'].get('token')
+            if "data" in data and data["data"].get("loginUser"):
+                token = data["data"]["loginUser"].get("token")
                 if token:
                     # Handle successful login
-                    self.manager.current = 'filepicker'
+                    self.manager.current = "reach_segment_table"
                 else:
                     self.show_error("Login failed. Invalid credentials.")
             else:
@@ -132,28 +144,20 @@ class LoginScreen(Screen):
         except Exception as err:
             self.show_error(f"An error occurred: {err}")
 
-    def on_enter(self):
-        # Set focus to username input when the screen is shown
-        self.username.focus = True
-
     def show_error(self, message):
-        content = BoxLayout(orientation='vertical')
-        
+        content = BoxLayout(orientation="vertical")
+
         # Add the message label
         message_label = Label(text=message)
         content.add_widget(message_label)
-        
+
         # Add a close button
-        close_button = Button(text='Close', size_hint=(1, 0.25))
+        close_button = Button(text="Close", size_hint=(1, 0.25))
         content.add_widget(close_button)
-        
-        popup = Popup(
-            title='Login Error',
-            content=content,
-            size_hint=(0.6, 0.4)
-        )
-        
+
+        popup = Popup(title="Login Error", content=content, size_hint=(0.6, 0.4))
+
         # Bind the close button to dismiss the popup
         close_button.bind(on_release=popup.dismiss)
-        
+
         popup.open()

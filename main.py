@@ -1,8 +1,9 @@
 import os
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from screens.login.login_screen import LoginScreen
-from screens.filepicker.file_picker_screen import FilePickerScreen
+from screens.login_screen import LoginScreen
+from screens.file_picker_screen import FilePickerScreen
+from screens.reach_segment_table import ReachSegmentTable
 
 # Create the main application class
 class FilePickerApp(App):
@@ -13,6 +14,7 @@ class FilePickerApp(App):
         # Add screens to the screen manager
         sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(FilePickerScreen(name='filepicker'))
+        sm.add_widget(ReachSegmentTable(name='reach_segment_table'))
 
         return sm
 
