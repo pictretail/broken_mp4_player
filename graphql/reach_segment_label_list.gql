@@ -1,0 +1,33 @@
+query reachSegmentLabelList($start: Int, $limit: Int, $status: Int, $itemIds: [Int], $stockwellIds: [Int], $userIds: [Int], $txnLimit: Int) {
+            reachSegmentLabelList(
+                start: $start
+                limit: $limit
+                status: $status
+                itemIds: $itemIds
+                stockwellIds: $stockwellIds
+                userIds: $userIds
+                txnLimit: $txnLimit
+            ) {
+                reachSegments {
+                    id
+                    date
+                    labelStatus {
+                        bornOn
+                        completeOn
+                        labeledBy {
+                            username
+                        }
+                        status
+                        wasGenerated
+                    }
+                    labels {
+                        id
+                        index
+                        type
+                        polygons {
+                            id
+                        }
+                    }
+                }
+            }
+        }
